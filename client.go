@@ -51,6 +51,7 @@ type Config struct {
 	UserAgent     string
 	Timeout       time.Duration
 	TenantID      string
+	Token	      string
 	Cardinalities map[string]int
 	Labels        LabelPool
 	ProtobufRatio float64
@@ -209,6 +210,9 @@ func (c *Client) sendQuery(q *Query) (httpext.Response, error) {
 	} else {
 		r.Header.Set("X-Scope-OrgID", fmt.Sprintf("%s-%d", TenantPrefix, state.VUID))
 	}
+	if c.cfg.Token != "" {
+                r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.cfg.Token))
+        }
 
 	url, _ := httpext.NewURL(urlString, path)
 	response, err := httpext.MakeRequest(c.vu.Context(), state, &httpext.ParsedHTTPRequest{
@@ -301,6 +305,9 @@ func (c *Client) send(state *lib.State, buf []byte, useProtobuf bool) (httpext.R
 	} else {
 		r.Header.Set("X-Scope-OrgID", fmt.Sprintf("%s-%d", TenantPrefix, state.VUID))
 	}
+	if c.cfg.Token != "" {
+                r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.cfg.Token))
+        }
 	if useProtobuf {
 		r.Header.Set("Content-Type", ContentTypeProtobuf)
 		r.Header.Add("Content-Encoding", ContentEncodingSnappy)

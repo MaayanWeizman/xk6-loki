@@ -171,6 +171,10 @@ func (r *Loki) parsePositionalConfig(c goja.ConstructorCall, config *Config) err
 		config.TenantID = user
 	}
 
+	if token, _ := u.User.Password(); token != "" {
+		config.Token = token
+	}
+
 	if len(c.Arguments) > 1 {
 		config.Timeout = time.Duration(c.Argument(1).ToInteger()) * time.Millisecond
 	}
@@ -210,6 +214,10 @@ func (r *Loki) parseConfigObject(c *goja.Object, config *Config) error {
 		if user := u.User.Username(); user != "" {
 			config.TenantID = user
 		}
+
+		if token, _ := u.User.Password(); token != "" {
+			config.Token = token
+		}
 	}
 
 	if v := c.Get("userAgent"); !isNully(v) {
@@ -223,6 +231,10 @@ func (r *Loki) parseConfigObject(c *goja.Object, config *Config) error {
 	if v := c.Get("tenantID"); !isNully(v) {
 		// This can overwrite the TenantID, even if we set it via the URL
 		config.TenantID = v.String()
+	}
+
+	if v := c.Get("token"); !isNully(v) {
+		config.Token = v.String()
 	}
 
 	if v := c.Get("cardinalities"); !isNully(v) {
